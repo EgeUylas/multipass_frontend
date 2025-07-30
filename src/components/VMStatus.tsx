@@ -189,11 +189,8 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
           return;
         }
       }
-<<<<<<< HEAD
 
-=======
       
->>>>>>> 5fcaa1a (Initial frontend commit)
       setError(`VM listesi alınamadı: ${errorMessage}`);
       console.error('VM Fetch Error:', err);
       setVms([]);
@@ -201,16 +198,12 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
       console.log('fetchVMs tamamlandı, loading false yapılıyor');
       setLoading(false);
     }
-<<<<<<< HEAD
   }, [lastFetch]); // useCallback bağımlılık dizisine lastFetch eklendi.
-=======
   }, [lastFetch]); // Add dependencies here
->>>>>>> 5fcaa1a (Initial frontend commit)
 
   // Sayfa yüklendiğinde ve yenileme tetiklendiğinde VM listesini getir
   useEffect(() => {
     fetchVMs(true);
-<<<<<<< HEAD
 
     // Yenileme event'ini dinle
     const handleRefresh = () => fetchVMs(true);
@@ -220,7 +213,6 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
       window.removeEventListener('refreshVMs', handleRefresh);
     };
   }, [fetchVMs]); // 'fetchVMs' dependency'si eklendi, çünkü useCallback kullanılıyor.
-=======
     
     // Yenileme event'ini dinle
     const handleRefresh = () => fetchVMs(true);
@@ -230,7 +222,6 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
       window.removeEventListener('refreshVMs', handleRefresh);
     };
   }, []); // fetchVMs dependency'sini kaldırdık
->>>>>>> 5fcaa1a (Initial frontend commit)
 
   const getStateColor = (state: string) => {
     switch (state.toLowerCase()) {
@@ -254,11 +245,6 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
     try {
       let url = '';
       let method = 'POST';
-<<<<<<< HEAD
-
-=======
-      
->>>>>>> 5fcaa1a (Initial frontend commit)
       switch (action) {
         case 'start':
           url = `${API_BASE_URL}/vms/start/${vmName}`;
@@ -271,16 +257,10 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
           method = 'DELETE';
           break;
       }
-<<<<<<< HEAD
-
-=======
-      
->>>>>>> 5fcaa1a (Initial frontend commit)
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' }
       });
-<<<<<<< HEAD
 
       if (!response.ok) {
         throw new Error(`${action} işlemi başarısız`);
@@ -292,7 +272,6 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
       // VM listesini yenile
       await fetchVMs(true);
 
-=======
       
       if (!response.ok) {
         throw new Error(`${action} işlemi başarısız`);
@@ -304,7 +283,6 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
       // VM listesini yenile
       fetchVMs(true);
       
->>>>>>> 5fcaa1a (Initial frontend commit)
     } catch (err) {
       console.error(`VM ${action} error:`, err);
       setError(`VM ${action} işlemi başarısız oldu`);
@@ -323,21 +301,18 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
-<<<<<<< HEAD
 
       if (!response.ok) throw new Error('Temizleme işlemi başarısız');
 
       // Temizleme başarılı, VM listesini yenile
       await fetchVMs(true);
 
-=======
       
       if (!response.ok) throw new Error('Temizleme işlemi başarısız');
       
       // Temizleme başarılı, VM listesini yenile
       await fetchVMs(true);
       
->>>>>>> 5fcaa1a (Initial frontend commit)
     } catch (err) {
       console.error('Purge error:', err);
       setError('VM temizleme işlemi başarısız oldu');
@@ -357,12 +332,9 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
               onClick={handlePurge}
               disabled={loading}
               className="flex items-center gap-1 px-3 py-1 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100 disabled:opacity-50"
-<<<<<<< HEAD
               title="Silinmiş VM'leri kalıcı olarak temizle"
-=======
               // eslint-disable-next-line react/no-unescaped-entities
               title={"Silinmiş VM'leri kalıcı olarak temizle"}
->>>>>>> 5fcaa1a (Initial frontend commit)
             >
               <Eraser className="w-4 h-4" />
               Temizle
@@ -378,20 +350,14 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
           </div>
         </div>
       </div>
-<<<<<<< HEAD
 
-=======
       
->>>>>>> 5fcaa1a (Initial frontend commit)
       <div className="p-4">
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
-<<<<<<< HEAD
             <span className="ml-2 text-gray-500">VM&apos;ler yükleniyor...</span>
-=======
             <span className="ml-2 text-gray-500">VM'ler yükleniyor...</span>
->>>>>>> 5fcaa1a (Initial frontend commit)
           </div>
         ) : error ? (
           <div className="text-center py-8">
@@ -423,7 +389,6 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
                       {vm.state}
                     </span>
                   </div>
-<<<<<<< HEAD
 
                     <div className="flex gap-1">
                      {vm.state === 'stopped' && (
@@ -487,7 +452,6 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
     </div>
   );
 }
-=======
                   
                                      <div className="flex gap-1">
                      {vm.state === 'stopped' && (
@@ -551,4 +515,3 @@ uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
     </div>
   );
 } 
->>>>>>> 5fcaa1a (Initial frontend commit)
