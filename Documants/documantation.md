@@ -1,8 +1,4 @@
 
-# AYAĞA KALDIRMA AŞAMALARI
-## İÇİNDEKİLER
-- 
-- 
 # KURULUM DÖKÜMANTASYONU
 ## İÇİNDEKİLER
 ### 1. OLLAMA KURULUMU
@@ -29,6 +25,7 @@
 ### 9. Open WebUI KURULUMU
 
 ### 10. MULTIPASS KURULUMU
+### 11.YAZILIMIN AYAĞA KALDIRILMASI
 
 
 ----------
@@ -580,6 +577,41 @@ Bu projede Multipass, kullanıcıdan alınan doğal dil komutları doğrultusund
 
    ![Sistem Grafiği](image/multipass9.png) 
 
+
+
+# YAZILIMIN AYAĞA KALDIRILMASI
+## 1. Gerekli Dosyaların Kontrolü
+Projedeki önemli dosyalar:
+- `api_server.py` dosyası FastAPI uygulamasını başlatır.
+- ` requirements.txt` gerekli Python kütüphanelerinin bahsedildiği dosyadır.
+- ` .env` dosyası gerekli ayarların ve Multipass PATH yolunun bulunduğu dosyadır.
+- `Modelfile` sistem promptlarının olduğu dosyadır.
+- `README.md` projeye ait özelliklerin,gereksinimlerin,kurulumların ve API endpointlerine ait bilgilerin olduğu dosyadır.
+
+## ADIM ADIM SİSTEMİ AYAĞA KALDIRMA
+
+## 1.ADIM: Servisler çalıştırılır.
+`openwebui serve` komutu ile OpenWebUI servisi başlatılır.
+## 2.ADIM:Model çalıştırılır.
+`ollama run mistral-nemo:12b` komutu ile model çalıştırılır.
+
+## 3.ADIM:Backend çalıştırılır.
+ İlk olarak `pip install -r requirements.txt` komutu girilerek gerekli kütüphanelerin yüklenmesi sağlanır.
+
+- fastapi:Web API geliştirmek için kullanılan frameworktür.
+- uvicorn:FastAPI’yi çalıştırmak için kullanılan kütüphanedir.
+- httpx:	Asenkron HTTP istekleri için sağlanan istemcidir.
+- python-dotenv:	`.env` dosyasındaki ortam değişkenlerini yükler
+- pydantic:	Veri doğrulama ve şema yönetimi için kullanılır.
+
+`uvicorn api_server:app --reload --port 8001` komutunun terminalde yazılması ile backendin çalışması başlatılır.
+
+
+## 4.ADIM:UI ayağa kaldırılır.
+
+`npm install` komutu ile gerekli kütüphane indirilir.
+
+`npm run dev` /`pnpm dev` komutu ile frontend kısmı çalıştırılır.
 
 
 
