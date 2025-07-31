@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 'use client';
 
 import React, { useState, KeyboardEvent, FormEvent } from 'react';
-=======
-import React, { useState, KeyboardEvent } from 'react';
->>>>>>> 5fcaa1a (Initial frontend commit)
 import { Send, Loader2 } from 'lucide-react';
 
 interface ChatInputProps {
@@ -13,11 +9,10 @@ interface ChatInputProps {
   disabled?: boolean;
 }
 
-<<<<<<< HEAD
-export default function ChatInput({
-  onSendMessage,
-  isLoading = false,
-  disabled = false,
+export default function ChatInput({ 
+  onSendMessage, 
+  isLoading = false, 
+  disabled = false 
 }: ChatInputProps) {
   const [message, setMessage] = useState('');
 
@@ -26,31 +21,15 @@ export default function ChatInput({
     const trimmed = message.trim();
     if (trimmed && !isLoading && !disabled) {
       onSendMessage(trimmed);
-=======
-export default function ChatInput({ onSendMessage, isLoading = false, disabled = false }: ChatInputProps) {
-  const [message, setMessage] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim() && !isLoading && !disabled) {
-      onSendMessage(message.trim());
->>>>>>> 5fcaa1a (Initial frontend commit)
       setMessage('');
     }
   };
 
-<<<<<<< HEAD
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       const formEvent = new Event('submit', { bubbles: true, cancelable: true });
       e.currentTarget.form?.dispatchEvent(formEvent);
-=======
-  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
->>>>>>> 5fcaa1a (Initial frontend commit)
     }
   };
 
@@ -61,32 +40,21 @@ export default function ChatInput({ onSendMessage, isLoading = false, disabled =
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-<<<<<<< HEAD
             onKeyDown={handleKeyDown}
             placeholder="Multipass komutlarınızı yazın... (örn: Ubuntu VM oluştur veya VM'leri listele)"
-=======
-            onKeyPress={handleKeyPress}
-            placeholder="Multipass komutlarınızı yazın... (örn: 'Ubuntu VM oluştur' veya 'VM'leri listele')"
->>>>>>> 5fcaa1a (Initial frontend commit)
             className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-black font-medium"
             rows={3}
             disabled={disabled || isLoading}
             maxLength={1000}
           />
           <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
-<<<<<<< HEAD
-            {/* Hata veren satır burasıydı: tek tırnak yerine &apos; kullanıldı */}
-=======
->>>>>>> 5fcaa1a (Initial frontend commit)
+
             <span>Enter ile gönder, Shift+Enter ile yeni satır</span>
             <span>{message.length}/1000</span>
           </div>
         </div>
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 5fcaa1a (Initial frontend commit)
+
         <button
           type="submit"
           disabled={!message.trim() || isLoading || disabled}
@@ -99,32 +67,19 @@ export default function ChatInput({ onSendMessage, isLoading = false, disabled =
           )}
         </button>
       </form>
-<<<<<<< HEAD
 
       {/* Quick Action Buttons */}
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
-=======
-      
-      {/* Quick Action Buttons */}
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button
->>>>>>> 5fcaa1a (Initial frontend commit)
           onClick={() => onSendMessage('VM listele')}
           disabled={isLoading || disabled}
           className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-<<<<<<< HEAD
-          VM&apos;leri Listele
-        </button>
-        <button
-          type="button"
-=======
           VM'leri Listele
         </button>
         <button
->>>>>>> 5fcaa1a (Initial frontend commit)
+          type="button"
           onClick={() => onSendMessage('Ubuntu VM oluştur')}
           disabled={isLoading || disabled}
           className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -132,10 +87,7 @@ export default function ChatInput({ onSendMessage, isLoading = false, disabled =
           Ubuntu VM Oluştur
         </button>
         <button
-<<<<<<< HEAD
           type="button"
-=======
->>>>>>> 5fcaa1a (Initial frontend commit)
           onClick={() => onSendMessage('Merhaba')}
           disabled={isLoading || disabled}
           className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -145,8 +97,4 @@ export default function ChatInput({ onSendMessage, isLoading = false, disabled =
       </div>
     </div>
   );
-<<<<<<< HEAD
 }
-=======
-} 
->>>>>>> 5fcaa1a (Initial frontend commit)

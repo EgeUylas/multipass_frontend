@@ -1,0 +1,364 @@
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { Monitor, Play, Square, Trash2, RefreshCw, Cpu, HardDrive, Wifi, Eraser } from 'lucide-react';
+import { getVMList } from '@/lib/api';
+
+// API base URL
+const API_BASE_URL = 'http://localhost:8001';
+
+interface VMStatusProps {
+  onRefresh?: () => void;
+}
+
+interface LocalVM {
+  name: string;
+  state: string;
+  ipv4: string[];
+  cpus: string;
+  memory: string;
+  disk: string;
+  release: string;
+}
+
+export default function VMStatus({ onRefresh: _onRefresh }: VMStatusProps) {
+  const [vms, setVms] = useState<LocalVM[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastFetch, setLastFetch] = useState<number>(0);
+
+  const fetchVMs = useCallback(async (force = false) => {
+    // Performance optimization: Call at most once every 2 seconds
+    const now = Date.now();
+    if (!force && now - lastFetch < 2000) {
+      console.log('Skipping fetchVMs - too frequent');
+      return;
+    }
+
+    console.log('Starting fetchVMs');
+    setLoading(true);
+    setError(null);
+    setLastFetch(now);
+
+    try {
+      console.log('Fetching VM list...');
+      const data = await getVMList();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch VM list');
+      }
+      console.log('VM List Response:', data);
+
+      // Process VM list
+      const parsedVMs: LocalVM[] = data.vms.map((vm: {
+        state?: string;
+        ipv4?: string[] | string;
+        name?: string;
+        cpus?: string;
+        disk_usage?: string;
+        memory?: string;
+        memory_usage?: string;
+        disk?: string;
+        release?: string;
+      }) => {
+        // Safely get VM state
+        const vmState = (vm.state || '').toString().toLowerCase() || 'Unknown';
+
+        // Process IP addresses
+        let ipAddresses: string[] = [];
+        if (Array.isArray(vm.ipv4)) {
+          ipAddresses = vm.ipv4.filter((ip: string) => ip && typeof ip === 'string');
+        } else if (vm.ipv4 && typeof vm.ipv4 === 'string') {
+          ipAddresses = [vm.ipv4];
+        }
+
+        return {
+          name: (vm.name || 'Unknown').toString(),
+          state: vmState,
+          ipv4: ipAddresses,
+          cpus: (vm.cpus || vm.disk_usage?.split('/')?.[0]?.trim() || 'N/A').toString(),
+          memory: (vm.memory || vm.memory_usage || 'N/A').toString(),
+          disk: (vm.disk || vm.disk_usage || 'N/A').toString(),
+          release: (vm.release || 'N/A').toString()
+        };
+      });
+
+      console.log('Parsed VMs:', parsedVMs);
+      setVms(parsedVMs);
+    } catch (err) {
+      let errorMessage = 'Unknown error';
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+
+        // Check for Multipass socket error
+        if (errorMessage.includes('cannot connect to the multipass socket') ||
+            errorMessage.includes('socket')) {
+          setError(`⚠️ Multipass service is not running!
+          
+Solution:
+1. Open PowerShell as ADMINISTRATOR
+2. Run this command: net start multipass
+3. Then refresh this page
+
+Alternative: Restart your computer.`);
+          setVms([]);
+          setLoading(false);
+          return;
+        }
+
+        // Check for API connection error
+        if (errorMessage === 'Failed to fetch') {
+          setError(`🔌 Backend server is not running!
+          
+API server (port 8000) is not accessible.
+Run this command in the terminal:
+uvicorn api_server:app --reload --host 0.0.0.0 --port 8000`);
+          setVms([]);
+          setLoading(false);
+          return;
+        }
+      }
+
+      setError(`Failed to fetch VM list: ${errorMessage}`);
+      console.error('VM Fetch Error:', err);
+      setVms([]);
+    } finally {
+      console.log('fetchVMs completed, setting loading to false');
+      setLoading(false);
+    }
+  }, [lastFetch]);
+
+  // Fetch VMs on component mount and when refresh is triggered
+  useEffect(() => {
+    fetchVMs(true);
+
+    // Listen for refresh events
+    const handleRefresh = () => fetchVMs(true);
+    window.addEventListener('refreshVMs', handleRefresh);
+
+    return () => {
+      window.removeEventListener('refreshVMs', handleRefresh);
+    };
+  }, [fetchVMs]);
+
+  const getStateColor = (state: string) => {
+    switch (state.toLowerCase()) {
+      case 'running': return 'text-green-600 bg-green-100';
+      case 'stopped': return 'text-red-600 bg-red-100';
+      case 'starting': return 'text-yellow-600 bg-yellow-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  const getStateIcon = (state: string) => {
+    switch (state.toLowerCase()) {
+      case 'running': return <Play className="w-4 h-4 text-green-600" />;
+      case 'stopped': return <Square className="w-4 h-4 text-red-600" />;
+      default: return <Monitor className="w-4 h-4 text-gray-600" />;
+    }
+  };
+
+  const handleVMAction = async (vmName: string, action: 'start' | 'stop' | 'delete') => {
+    setLoading(true);
+    try {
+      let url = '';
+      let method = 'POST';
+      
+      switch (action) {
+        case 'start':
+          url = `${API_BASE_URL}/vms/start/${vmName}`;
+          break;
+        case 'stop':
+          url = `${API_BASE_URL}/vms/stop/${vmName}`;
+          break;
+        case 'delete':
+          url = `${API_BASE_URL}/vms/delete/${vmName}`;
+          method = 'DELETE';
+          break;
+      }
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`${action} operation failed`);
+      }
+
+      const result = await response.json();
+      console.log(`${action} action result:`, result);
+
+      // Refresh VM list
+      await fetchVMs(true);
+    } catch (err) {
+      console.error(`VM ${action} error:`, err);
+      setError(`VM ${action} operation failed`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePurge = async () => {
+    if (!confirm('Are you sure you want to permanently remove all deleted VMs? This action cannot be undone!')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/vms/purge`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) throw new Error('Purge operation failed');
+
+      // Refresh VM list after successful purge
+      await fetchVMs(true);
+    } catch (err) {
+      console.error('Purge error:', err);
+      setError('VM purge operation failed');
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <Monitor className="w-5 h-5" />
+            Virtual Machines ({vms.length})
+          </h3>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => fetchVMs(true)}
+              disabled={loading}
+              className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Refresh"
+            >
+              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={handlePurge}
+              disabled={loading}
+              className="p-2 text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Purge Deleted VMs"
+            >
+              <Eraser className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="p-4 bg-red-50 text-red-700 text-sm whitespace-pre-line">
+          {error}
+        </div>
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                IP Address
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Resources
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {vms.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                  {loading ? 'Loading VMs...' : 'No VMs found'}
+                </td>
+              </tr>
+            ) : (
+              vms.map((vm) => (
+                <tr key={vm.name} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="font-medium text-gray-900">{vm.name}</div>
+                    <div className="text-sm text-gray-500">{vm.release}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStateColor(vm.state)}`}>
+                      {getStateIcon(vm.state)}
+                      <span className="ml-1 capitalize">{vm.state}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {vm.ipv4.length > 0 ? (
+                      <div className="flex items-center">
+                        <Wifi className="w-4 h-4 mr-1 text-gray-400" />
+                        {vm.ipv4.join(', ')}
+                      </div>
+                    ) : 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex flex-col space-y-1">
+                      <div className="flex items-center">
+                        <Cpu className="w-4 h-4 mr-1 text-gray-400" />
+                        {vm.cpus} vCPUs
+                      </div>
+                      <div className="flex items-center">
+                        <HardDrive className="w-4 h-4 mr-1 text-gray-400" />
+                        {vm.memory} RAM
+                      </div>
+                      <div className="flex items-center">
+                        <HardDrive className="w-4 h-4 mr-1 text-gray-400" />
+                        {vm.disk} Disk
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex space-x-2">
+                      {vm.state.toLowerCase() !== 'running' && (
+                        <button
+                          onClick={() => handleVMAction(vm.name, 'start')}
+                          disabled={loading}
+                          className="text-green-600 hover:text-green-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Start VM"
+                        >
+                          <Play className="w-5 h-5" />
+                        </button>
+                      )}
+                      {vm.state.toLowerCase() === 'running' && (
+                        <button
+                          onClick={() => handleVMAction(vm.name, 'stop')}
+                          disabled={loading}
+                          className="text-yellow-600 hover:text-yellow-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Stop VM"
+                        >
+                          <Square className="w-5 h-5" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleVMAction(vm.name, 'delete')}
+                        disabled={loading}
+                        className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Delete VM"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
