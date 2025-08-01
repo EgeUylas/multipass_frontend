@@ -72,11 +72,11 @@ Asistan: "deneme-vm oluşturuluyor..."
 - **Durum İkonları**: Running, Stopped, Starting
 - **VM Bilgileri**: IP, RAM, CPU, Disk bilgileri
 - **Hızlı Aksiyonlar**: Başlat, Durdur, Sil butonları
-      ![Sistem Grafiği](image/arayüz.jfif)
+      ![Sistem Grafiği](README/image/arayüz.jfif)
 ### Chat Alanı  
 - **VM İşlem Durumu**: Oluşturma/güncelleme progress'i
 - **Hızlı Komutlar**: Önceden tanımlı butonlar
-      ![Sistem Grafiği](image/arayüz2.jfif)
+      ![Sistem Grafiği](README/image/arayüz2.jfif)
 
 ## Konfigürasyon
 
