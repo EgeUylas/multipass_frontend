@@ -26,8 +26,14 @@
 
 ### 10. MULTIPASS KURULUMU
 ### 11.YAZILIMIN AYAĞA KALDIRILMASI
+### 12.Windows Sisteminde `VENV` Kütüphanesinin Kullanımı
 
+#### Proje Linkleri 
+Github repositories :
 
+Frontend : https://github.com/EgeUylas/multipass_frontend
+
+Backend  : https://github.com/EgeUylas/multipass_beckend
 ----------
 
 # 1.OLLAMA KURULUMU
@@ -580,43 +586,111 @@ Bu projede Multipass, kullanıcıdan alınan doğal dil komutları doğrultusund
 
 
 # YAZILIMIN AYAĞA KALDIRILMASI
+
+
 ## 1. Gerekli Dosyaların Kontrolü
+
 Projedeki önemli dosyalar:
-- `api_server.py` dosyası FastAPI uygulamasını başlatır.
-- ` requirements.txt` gerekli Python kütüphanelerinin bahsedildiği dosyadır.
-- ` .env` dosyası gerekli ayarların ve Multipass PATH yolunun bulunduğu dosyadır.
-- `Modelfile` sistem promptlarının olduğu dosyadır.
-- `README.md` projeye ait özelliklerin,gereksinimlerin,kurulumların ve API endpointlerine ait bilgilerin olduğu dosyadır.
+
+`api_server.py` dosyası FastAPI uygulamasını başlatır.
+dosyadaki gereklilikler : 
+- fastapi:Web API geliştirmek için kullanılan frameworktür.
+
+  `pip install fastapi`
+- uvicorn:FastAPI’yi çalıştırmak için kullanılan kütüphanedir.
+
+  `pip install "uvicorn[standard]"`
+- httpx:	Asenkron HTTP istekleri için sağlanan istemcidir.
+
+  `pip install httpx`
+
+- python-dotenv:	`.env` dosyasındaki ortam değişkenlerini yükler.
+
+  `pip install python-dotenv`
+- pydantic:	Veri doğrulama ve şema yönetimi için kullanılır.
+
+  `pip install pydantic`
+
+
+
+` requirements.txt` gerekli Python kütüphanelerinin bahsedildiği dosyadır.
+
+ ` .env` dosyası gerekli ayarların ve Multipass PATH yolunun bulunduğu dosyadır.
+
+ `Modelfile` sistem promptlarının olduğu dosyadır.
+
+ `README.md` projeye ait özelliklerin,gereksinimlerin,kurulumların ve API endpointlerine ait bilgilerin olduğu dosyadır.
+
+## 2.Windows Sisteminde `VENV` Kütüphanesinin Kullanımı
+
+````
+Sistemdeki global Python ortamını etkilemeden projeye özel bir izole çalışma alanı (sanal ortam) kurmak amacıyla bu modül kullanıldı.Eğer global olarak yüklenirse, bir projede sürüm değiştirmek diğer projeyi bozabilir.Bu noktada da `venv` kütüphanesi devreye girer ve problemi çözer.
+
+````
+Windows sistemlerde `venv` kütüphanesi eksik olabilir. Bunu kontrol etmek için terminalde şu komut yazılır:
+> `py -m venv --help`
+
+![Sistem Grafiği](image/help.png) 
+Bu komut çalışıyor ve açıklama döndürüyorsa venv modülü sisteminizde hazırdır.
+
+
+Terminal ekranına aşağıdaki komut girilir ve projenin olduğu klasörde sanal ortam klasörü oluşturulur.
+
+>`py -m venv SANALMODUL_PROJE`
+
+Sanal ortam klasörünü aktifleştirmek için şu komut girilir:
+
+>`.\SANALMODUL_PROJE\Scripts\activate`
+
+![Sistem Grafiği](image/VENV.png) 
+
+Gerekli olan kütüphaneler aşağıdaki komut ile direkt olarak sisteme yüklenebilir.
+
+> `pip install -r requirements.txt `
+
+Ardından proje dosyası çalıştırılır.
+
 
 ## ADIM ADIM SİSTEMİ AYAĞA KALDIRMA
 
 ## 1.ADIM: Servisler çalıştırılır.
-`openwebui serve` komutu ile OpenWebUI servisi başlatılır.
+`open-webui serve` komutu ile OpenWebUI servisi başlatılır.
+Aşağıdaki linke tıklayarak sayfaya yönlendirilebilirsiniz:
+
+OPENWEBUI_BASE_URL= http://localhost:8080
+
+ ![Sistem Grafiği](image/OPENWEBUI.jpg) 
+
 ## 2.ADIM:Model çalıştırılır.
-`ollama run mistral-nemo:12b` komutu ile model çalıştırılır.
+> `ollama run mistral-nemo:12b` komutu ile model çalıştırılır.
 
+![Sistem Grafiği](image/MİSTRAL_NEMO.jpg) 
 ## 3.ADIM:Backend çalıştırılır.
- İlk olarak `pip install -r requirements.txt` komutu girilerek gerekli kütüphanelerin yüklenmesi sağlanır.
+ 
 
-- fastapi:Web API geliştirmek için kullanılan frameworktür.
-- uvicorn:FastAPI’yi çalıştırmak için kullanılan kütüphanedir.
-- httpx:	Asenkron HTTP istekleri için sağlanan istemcidir.
-- python-dotenv:	`.env` dosyasındaki ortam değişkenlerini yükler
-- pydantic:	Veri doğrulama ve şema yönetimi için kullanılır.
+> `uvicorn api_server:app --reload --port 8001` komutunun terminalde yazılması ile backendin çalışması başlatılır.
 
-`uvicorn api_server:app --reload --port 8001` komutunun terminalde yazılması ile backendin çalışması başlatılır.
+![Sistem Grafiği](image/uvicorn.jpg) 
 
 
 ## 4.ADIM:UI ayağa kaldırılır.
 
-`npm install` komutu ile gerekli kütüphane indirilir.
+> `npm install` komutu ile gerekli kütüphane indirilir.
 
-`npm run dev` /`pnpm dev` komutu ile frontend kısmı çalıştırılır.
+![Sistem Grafiği](image/npm.jpg) 
 
+> `npm run dev` /`pnpm dev` komutu ile frontend kısmı çalıştırılır.
 
+![Sistem Grafiği](image/npmprun.jpg) 
 
+Aşağıdaki linke tıklayarak UI ekranına yönlendirilebilirsiniz:
 
+URL: http://localhost:3000 
 
+------------
+![Sistem Grafiği](image/frontendd.jpg) 
+
+---------------
 
 
 
