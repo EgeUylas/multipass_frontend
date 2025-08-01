@@ -32,8 +32,8 @@
 Github repositories :
 
 Frontend : https://github.com/EgeUylas/multipass_frontend
-
 Backend  : https://github.com/EgeUylas/multipass_beckend
+
 ----------
 
 # 1.OLLAMA KURULUMU
